@@ -18,7 +18,7 @@ trait AuthTokenDAO {
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  def find(id: Long)(implicit ec: ExecutionContext): Future[Option[AuthToken]]
+  def find(id: UUID)(implicit ec: ExecutionContext): Future[Option[AuthToken]]
 
   /**
    * Finds expired tokens.
@@ -41,5 +41,5 @@ trait AuthTokenDAO {
    * @param id The ID for which the token should be removed.
    * @return A future to wait for the process to be completed.
    */
-  def remove(id: Long)(implicit ec: ExecutionContext): Future[Unit]
+  def remove(id: UUID)(implicit ec: ExecutionContext): Future[Unit]
 }

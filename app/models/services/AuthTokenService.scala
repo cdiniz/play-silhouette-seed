@@ -28,7 +28,7 @@ trait AuthTokenService {
    * @param id The token ID to validate.
    * @return The token if it's valid, None otherwise.
    */
-  def validate(id: Long): Future[Option[AuthToken]]
+  def validate(id: UUID): Future[Option[AuthToken]]
 
   /**
    * Cleans expired tokens.

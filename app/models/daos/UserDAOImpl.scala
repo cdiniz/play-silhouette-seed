@@ -30,7 +30,9 @@ class UserDAOImpl @Inject() (override protected val dbConfigProvider: DatabaseCo
    * @param user The user to save.
    * @return The saved user.
    */
-  override def save(user: User)(implicit ec: ExecutionContext): Future[User] = insert(user).map(i => user)
+  override def save(user: User)(implicit ec: ExecutionContext): Future[User] = {
+    if (user.id == 0) insert(user).map { id: Long => user.copy(id = id) } else update(user).map(_ => user)
+  }
 
   /**
    * Finds a user by its user ID.

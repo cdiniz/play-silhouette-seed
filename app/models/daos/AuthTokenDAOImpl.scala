@@ -2,6 +2,7 @@ package models.daos
 
 import javax.inject.Inject
 import java.sql.Timestamp
+import java.util.UUID
 
 import models.persistence.{ AuthToken, AuthTokensTable, User, UsersTable }
 import org.joda.time.DateTime
@@ -23,7 +24,7 @@ class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: Datab
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  override def find(id: Long)(implicit ec: ExecutionContext): Future[Option[AuthToken]] = findById(id)
+  override def find(id: UUID)(implicit ec: ExecutionContext): Future[Option[AuthToken]] = findByFilter(_.token === id).map(_.headOption)
 
   /**
    * Finds expired tokens.
@@ -38,7 +39,7 @@ class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: Datab
    * @param id The ID for which the token should be removed.
    * @return A future to wait for the process to be completed.
    */
-  override def remove(id: Long)(implicit ec: ExecutionContext): Future[Unit] = deleteById(id).map(i => {})
+  override def remove(id: UUID)(implicit ec: ExecutionContext): Future[Unit] = deleteByFilter(_.token === id).map(i => {})
 
   /**
    * Saves a token.
@@ -46,6 +47,6 @@ class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: Datab
    * @param token The token to save.
    * @return The saved token.
    */
-  override def save(token: AuthToken)(implicit ec: ExecutionContext): Future[AuthToken] = insert(token).map(i => token)
+  override def save(token: AuthToken)(implicit ec: ExecutionContext): Future[AuthToken] = insert(token).map(id => token.copy(id = id))
 
 }

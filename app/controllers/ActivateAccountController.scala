@@ -51,7 +51,7 @@ class ActivateAccountController @Inject() (
     userService.retrieve(loginInfo).flatMap {
       case Some(user) if !user.activated =>
         authTokenService.create(user.id).map { authToken =>
-          val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
+          val url = routes.ActivateAccountController.activate(authToken.token).absoluteURL()
           val email = Email(
             subject = Messages("email.activate.account.subject"),
             from = Messages("email.from"),
@@ -72,7 +72,7 @@ class ActivateAccountController @Inject() (
    * @param token The token to identify a user.
    * @return The result to display.
    */
-  def activate(token: Long) = silhouette.UnsecuredAction.async { implicit request =>
+  def activate(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
       case Some(authToken) => userService.retrieve(authToken.userId).flatMap {
         case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>

@@ -43,7 +43,7 @@ class ResetPasswordController @Inject() (
    * @param token The token to identify a user.
    * @return The result to display.
    */
-  def view(token: Long) = silhouette.UnsecuredAction.async { implicit request =>
+  def view(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).map {
       case Some(authToken) => Ok(views.html.resetPassword(ResetPasswordForm.form, token))
       case None => Redirect(routes.SignInController.view()).flashing("error" -> Messages("invalid.reset.link"))
@@ -56,7 +56,7 @@ class ResetPasswordController @Inject() (
    * @param token The token to identify a user.
    * @return The result to display.
    */
-  def submit(token: Long) = silhouette.UnsecuredAction.async { implicit request =>
+  def submit(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
       case Some(authToken) =>
         ResetPasswordForm.form.bindFromRequest.fold(
