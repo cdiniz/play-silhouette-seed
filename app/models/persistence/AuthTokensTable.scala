@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 /**
  * Created by cdiniz on 30/09/16.
  */
-class AuthTokensTable(tag: Tag) extends BaseTable[AuthToken](tag, "tokens") {
+class AuthTokensTable(tag: Tag) extends BaseTable[AuthToken](tag, "auth_tokens") {
   def userId = column[Long]("user_id")
   def expiry = column[Timestamp]("expiry")
 

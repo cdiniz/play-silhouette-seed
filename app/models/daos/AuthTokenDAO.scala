@@ -5,7 +5,7 @@ import java.util.UUID
 import models.persistence.AuthToken
 import org.joda.time.DateTime
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
  * Give access to the [[AuthToken]] object.
@@ -18,14 +18,14 @@ trait AuthTokenDAO {
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  def find(id: Long): Future[Option[AuthToken]]
+  def find(id: Long)(implicit ec: ExecutionContext): Future[Option[AuthToken]]
 
   /**
    * Finds expired tokens.
    *
    * @param dateTime The current date time.
    */
-  def findExpired(dateTime: DateTime): Future[Seq[AuthToken]]
+  def findExpired(dateTime: DateTime)(implicit ec: ExecutionContext): Future[Seq[AuthToken]]
 
   /**
    * Saves a token.
@@ -33,7 +33,7 @@ trait AuthTokenDAO {
    * @param token The token to save.
    * @return The saved token.
    */
-  def save(token: AuthToken): Future[AuthToken]
+  def save(token: AuthToken)(implicit ec: ExecutionContext): Future[AuthToken]
 
   /**
    * Removes the token for the given ID.
@@ -41,5 +41,5 @@ trait AuthTokenDAO {
    * @param id The ID for which the token should be removed.
    * @return A future to wait for the process to be completed.
    */
-  def remove(id: Long): Future[Unit]
+  def remove(id: Long)(implicit ec: ExecutionContext): Future[Unit]
 }

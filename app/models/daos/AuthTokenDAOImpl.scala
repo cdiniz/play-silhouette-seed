@@ -1,18 +1,21 @@
 package models.daos
 
-import java.util.UUID
+import javax.inject.Inject
+import java.sql.Timestamp
 
-import models.daos.AuthTokenDAOImpl._
-import models.persistence.AuthToken
+import models.persistence.{ AuthToken, AuthTokensTable, User, UsersTable }
 import org.joda.time.DateTime
+import play.api.db.slick.DatabaseConfigProvider
 
-import scala.collection.mutable
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
- * Give access to the [[AuthToken]] object.
+ * Created by cdiniz on 01/10/16.
  */
-class AuthTokenDAOImpl extends AuthTokenDAO {
+class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: DatabaseConfigProvider) extends BaseDAO[AuthTokensTable, AuthToken] with AuthTokenDAO {
+  import dbConfig.driver.api._
+
+  override val tableQ: TableQuery[AuthTokensTable] = TableQuery[AuthTokensTable]
 
   /**
    * Finds a token by its ID.
@@ -20,30 +23,14 @@ class AuthTokenDAOImpl extends AuthTokenDAO {
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  def find(id: Long) = Future.successful(tokens.get(id))
+  override def find(id: Long)(implicit ec: ExecutionContext): Future[Option[AuthToken]] = findById(id)
 
   /**
    * Finds expired tokens.
    *
    * @param dateTime The current date time.
    */
-  def findExpired(dateTime: DateTime) = Future.successful {
-    tokens.filter {
-      case (id, token) =>
-        token.expiry.isBefore(dateTime)
-    }.values.toSeq
-  }
-
-  /**
-   * Saves a token.
-   *
-   * @param token The token to save.
-   * @return The saved token.
-   */
-  def save(token: AuthToken) = {
-    tokens += (token.id -> token)
-    Future.successful(token)
-  }
+  override def findExpired(dateTime: DateTime)(implicit ec: ExecutionContext): Future[Seq[AuthToken]] = findByFilter(token => token.expiry < new Timestamp(dateTime.getMillis))
 
   /**
    * Removes the token for the given ID.
@@ -51,19 +38,14 @@ class AuthTokenDAOImpl extends AuthTokenDAO {
    * @param id The ID for which the token should be removed.
    * @return A future to wait for the process to be completed.
    */
-  def remove(id: Long) = {
-    tokens -= id
-    Future.successful(())
-  }
-}
-
-/**
- * The companion object.
- */
-object AuthTokenDAOImpl {
+  override def remove(id: Long)(implicit ec: ExecutionContext): Future[Unit] = deleteById(id).map(i => {})
 
   /**
-   * The list of tokens.
+   * Saves a token.
+   *
+   * @param token The token to save.
+   * @return The saved token.
    */
-  val tokens: mutable.HashMap[Long, AuthToken] = mutable.HashMap()
+  override def save(token: AuthToken)(implicit ec: ExecutionContext): Future[AuthToken] = insert(token).map(i => token)
+
 }

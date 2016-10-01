@@ -6,7 +6,7 @@ package models.daos
 import models.entities.BaseEntity
 import play.api.db.slick.HasDatabaseConfigProvider
 import slick.driver.JdbcProfile
-import slick.lifted.{ CanBeQueryCondition, Rep, TableQuery, Tag }
+import slick.lifted._
 
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -26,8 +26,10 @@ trait AbstractBaseDAO[T, A] {
   def deleteByFilter[C: CanBeQueryCondition](f: (T) => C): Future[Int]
 }
 
-abstract class BaseDAO[T <: BaseTable[A], A <: BaseEntity]()(implicit val tableQ: TableQuery[T]) extends AbstractBaseDAO[T, A] with HasDatabaseConfigProvider[JdbcProfile] {
+abstract class BaseDAO[T <: BaseTable[A], A <: BaseEntity]() extends AbstractBaseDAO[T, A] with HasDatabaseConfigProvider[JdbcProfile] {
   import dbConfig.driver.api._
+
+  val tableQ: TableQuery[T]
 
   def insert(row: A): Future[Long] = {
     insert(Seq(row)).map(_.head)

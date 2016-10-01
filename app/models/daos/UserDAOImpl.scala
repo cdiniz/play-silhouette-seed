@@ -1,18 +1,20 @@
 package models.daos
 
-import java.util.UUID
+import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import models.daos.UserDAOImpl._
-import models.persistence.User
+import models.persistence.{ User, UsersTable }
+import play.api.db.slick.DatabaseConfigProvider
 
-import scala.collection.mutable
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
- * Give access to the user object.
+ * Created by cdiniz on 01/10/16.
  */
-class UserDAOImpl extends UserDAO {
+class UserDAOImpl @Inject() (override protected val dbConfigProvider: DatabaseConfigProvider) extends BaseDAO[UsersTable, User] with UserDAO {
+  import dbConfig.driver.api._
+
+  override val tableQ: TableQuery[UsersTable] = TableQuery[UsersTable]
 
   /**
    * Finds a user by its login info.
@@ -20,17 +22,7 @@ class UserDAOImpl extends UserDAO {
    * @param loginInfo The login info of the user to find.
    * @return The found user or None if no user for the given login info could be found.
    */
-  def find(loginInfo: LoginInfo) = Future.successful(
-    users.find { case (id, user) => user.loginInfo == loginInfo }.map(_._2)
-  )
-
-  /**
-   * Finds a user by its user ID.
-   *
-   * @param userID The ID of the user to find.
-   * @return The found user or None if no user for the given ID could be found.
-   */
-  def find(userID: Long) = Future.successful(users.get(userID))
+  override def find(loginInfo: LoginInfo)(implicit ec: ExecutionContext): Future[Option[User]] = findByFilter(user => user.providerKey === loginInfo.providerKey && user.providerId === loginInfo.providerID).map(_.headOption)
 
   /**
    * Saves a user.
@@ -38,21 +30,13 @@ class UserDAOImpl extends UserDAO {
    * @param user The user to save.
    * @return The saved user.
    */
-  def save(user: User) = {
-    //poor simulation of auto increment ids, no sync, just an example
-    val userWithId = user.copy(id = users.last._1.toLong + 1)
-    users += (userWithId.id -> userWithId)
-    Future.successful(user)
-  }
-}
-
-/**
- * The companion object.
- */
-object UserDAOImpl {
+  override def save(user: User)(implicit ec: ExecutionContext): Future[User] = insert(user).map(i => user)
 
   /**
-   * The list of users.
+   * Finds a user by its user ID.
+   *
+   * @param userId The ID of the user to find.
+   * @return The found user or None if no user for the given ID could be found.
    */
-  val users: mutable.HashMap[Long, User] = mutable.HashMap()
+  override def find(userId: Long)(implicit ec: ExecutionContext): Future[Option[User]] = findById(userId)
 }

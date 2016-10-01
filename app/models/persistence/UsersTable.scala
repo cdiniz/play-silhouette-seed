@@ -8,7 +8,6 @@ import com.mohiva.play.silhouette.api.LoginInfo
  * Created by cdiniz on 30/09/16.
  */
 class UsersTable(tag: Tag) extends BaseTable[User](tag, "users") {
-  def userID = column[UUID]("user_id")
   def providerId = column[String]("provider_id")
   def providerKey = column[String]("provider_key")
   def firstName = column[String]("first_name")
