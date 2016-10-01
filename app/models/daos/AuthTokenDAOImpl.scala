@@ -2,8 +2,8 @@ package models.daos
 
 import java.util.UUID
 
-import models.AuthToken
 import models.daos.AuthTokenDAOImpl._
+import models.persistence.AuthToken
 import org.joda.time.DateTime
 
 import scala.collection.mutable
@@ -20,7 +20,7 @@ class AuthTokenDAOImpl extends AuthTokenDAO {
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  def find(id: UUID) = Future.successful(tokens.get(id))
+  def find(id: Long) = Future.successful(tokens.get(id))
 
   /**
    * Finds expired tokens.
@@ -51,7 +51,7 @@ class AuthTokenDAOImpl extends AuthTokenDAO {
    * @param id The ID for which the token should be removed.
    * @return A future to wait for the process to be completed.
    */
-  def remove(id: UUID) = {
+  def remove(id: Long) = {
     tokens -= id
     Future.successful(())
   }
@@ -65,5 +65,5 @@ object AuthTokenDAOImpl {
   /**
    * The list of tokens.
    */
-  val tokens: mutable.HashMap[UUID, AuthToken] = mutable.HashMap()
+  val tokens: mutable.HashMap[Long, AuthToken] = mutable.HashMap()
 }

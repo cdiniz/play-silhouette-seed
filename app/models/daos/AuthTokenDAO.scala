@@ -2,7 +2,7 @@ package models.daos
 
 import java.util.UUID
 
-import models.AuthToken
+import models.persistence.AuthToken
 import org.joda.time.DateTime
 
 import scala.concurrent.Future
@@ -18,7 +18,7 @@ trait AuthTokenDAO {
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  def find(id: UUID): Future[Option[AuthToken]]
+  def find(id: Long): Future[Option[AuthToken]]
 
   /**
    * Finds expired tokens.
@@ -41,5 +41,5 @@ trait AuthTokenDAO {
    * @param id The ID for which the token should be removed.
    * @return A future to wait for the process to be completed.
    */
-  def remove(id: UUID): Future[Unit]
+  def remove(id: Long): Future[Unit]
 }

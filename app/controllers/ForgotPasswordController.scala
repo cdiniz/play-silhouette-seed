@@ -60,7 +60,7 @@ class ForgotPasswordController @Inject() (
         val result = Redirect(routes.SignInController.view()).flashing("info" -> Messages("reset.email.sent"))
         userService.retrieve(loginInfo).flatMap {
           case Some(user) if user.email.isDefined =>
-            authTokenService.create(user.userID).map { authToken =>
+            authTokenService.create(user.id).map { authToken =>
               val url = routes.ResetPasswordController.view(authToken.id).absoluteURL()
               val mail = Email(
                 subject = Messages("email.reset.password.subject"),

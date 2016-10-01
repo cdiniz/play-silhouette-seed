@@ -15,13 +15,13 @@ POST        /signIn                          controllers.SignInController.submit
 
 GET         /password/forgot                 controllers.ForgotPasswordController.view
 POST        /password/forgot                 controllers.ForgotPasswordController.submit
-GET         /password/reset/:token           controllers.ResetPasswordController.view(token: java.util.UUID)
-POST        /password/reset/:token           controllers.ResetPasswordController.submit(token: java.util.UUID)
+GET         /password/reset/:token           controllers.ResetPasswordController.view(token: Long)
+POST        /password/reset/:token           controllers.ResetPasswordController.submit(token: Long)
 GET         /password/change                 controllers.ChangePasswordController.view
 POST        /password/change                 controllers.ChangePasswordController.submit
 
 GET         /account/email/:email            controllers.ActivateAccountController.send(email: String)
-GET         /account/activate/:token         controllers.ActivateAccountController.activate(token: java.util.UUID)
+GET         /account/activate/:token         controllers.ActivateAccountController.activate(token: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                    controllers.Assets.at(path="/public", file)

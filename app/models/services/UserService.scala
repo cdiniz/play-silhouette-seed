@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.mohiva.play.silhouette.api.services.IdentityService
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
-import models.User
+import models.persistence.User
 
 import scala.concurrent.Future
 
@@ -19,7 +19,7 @@ trait UserService extends IdentityService[User] {
    * @param id The ID to retrieve a user.
    * @return The retrieved user or None if no user could be retrieved for the given ID.
    */
-  def retrieve(id: UUID): Future[Option[User]]
+  def retrieve(id: Long): Future[Option[User]]
 
   /**
    * Saves a user.

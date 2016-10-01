@@ -3,8 +3,8 @@ package models.daos
 import java.util.UUID
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import models.User
 import models.daos.UserDAOImpl._
+import models.persistence.User
 
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -30,7 +30,7 @@ class UserDAOImpl extends UserDAO {
    * @param userID The ID of the user to find.
    * @return The found user or None if no user for the given ID could be found.
    */
-  def find(userID: UUID) = Future.successful(users.get(userID))
+  def find(userID: Long) = Future.successful(users.get(userID))
 
   /**
    * Saves a user.
@@ -39,7 +39,9 @@ class UserDAOImpl extends UserDAO {
    * @return The saved user.
    */
   def save(user: User) = {
-    users += (user.userID -> user)
+    //poor simulation of auto increment ids, no sync, just an example
+    val userWithId = user.copy(id = users.last._1.toLong + 1)
+    users += (userWithId.id -> userWithId)
     Future.successful(user)
   }
 }
@@ -52,5 +54,5 @@ object UserDAOImpl {
   /**
    * The list of users.
    */
-  val users: mutable.HashMap[UUID, User] = mutable.HashMap()
+  val users: mutable.HashMap[Long, User] = mutable.HashMap()
 }

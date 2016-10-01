@@ -1,11 +1,11 @@
 package models.services
 
-import java.util.UUID
+import java.sql.Timestamp
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.util.Clock
-import models.AuthToken
 import models.daos.AuthTokenDAO
+import models.persistence.AuthToken
 import org.joda.time.DateTimeZone
 import play.api.libs.concurrent.Execution.Implicits._
 
@@ -24,12 +24,13 @@ class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock) 
   /**
    * Creates a new auth token and saves it in the backing store.
    *
-   * @param userID The user ID for which the token should be created.
+   * @param userId The user ID for which the token should be created.
    * @param expiry The duration a token expires.
    * @return The saved auth token.
    */
-  def create(userID: UUID, expiry: FiniteDuration = 5 minutes) = {
-    val token = AuthToken(UUID.randomUUID(), userID, clock.now.withZone(DateTimeZone.UTC).plusSeconds(expiry.toSeconds.toInt))
+  def create(userId: Long, expiry: FiniteDuration = 5 minutes) = {
+    val now = new Timestamp(clock.now.getMillis);
+    val token = AuthToken(clock.now.getMillis, userId, clock.now.withZone(DateTimeZone.UTC).plusSeconds(expiry.toSeconds.toInt), now, now)
     authTokenDAO.save(token)
   }
 
@@ -39,7 +40,7 @@ class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock) 
    * @param id The token ID to validate.
    * @return The token if it's valid, None otherwise.
    */
-  def validate(id: UUID) = authTokenDAO.find(id)
+  def validate(id: Long) = authTokenDAO.find(id)
 
   /**
    * Cleans expired tokens.

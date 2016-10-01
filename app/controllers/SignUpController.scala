@@ -1,15 +1,16 @@
 package controllers
 
+import java.sql.Timestamp
 import java.util.UUID
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AvatarService
-import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
+import com.mohiva.play.silhouette.api.util.{ Clock, PasswordHasherRegistry }
 import com.mohiva.play.silhouette.impl.providers._
 import forms.SignUpForm
-import models.User
+import models.persistence.User
 import models.services.{ AuthTokenService, UserService }
 import play.api.{ Configuration, Logger, Mode }
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
@@ -34,7 +35,7 @@ import scala.concurrent.Future
  * @param mailerClient           The mailer client.
  * @param webJarAssets           The webjar assets implementation.
  */
-class SignUpController @Inject() (
+class SignUpController @Inject() (clock: Clock)(
   val messagesApi: MessagesApi,
   silhouette: Silhouette[DefaultEnv],
   userService: UserService,
@@ -81,22 +82,26 @@ class SignUpController @Inject() (
 
             Future.successful(result)
           case None =>
+            val now = new Timestamp(clock.now.getMillis)
             val authInfo = passwordHasherRegistry.current.hash(data.password)
             val user = User(
-              userID = UUID.randomUUID(),
+              id = 0,
               loginInfo = loginInfo,
               firstName = Some(data.firstName),
               lastName = Some(data.lastName),
               fullName = Some(data.firstName + " " + data.lastName),
               email = Some(data.email),
               avatarURL = None,
-              activated = false
+              activated = false,
+              explicitContentAuth = false,
+              createdAt = now,
+              editedAt = now
             )
             for {
               avatar <- avatarService.retrieveURL(data.email)
               user <- userService.save(user.copy(avatarURL = avatar))
               authInfo <- authInfoRepository.add(loginInfo, authInfo)
-              authToken <- authTokenService.create(user.userID)
+              authToken <- authTokenService.create(user.id)
             } yield {
               val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
               val email = Email(
