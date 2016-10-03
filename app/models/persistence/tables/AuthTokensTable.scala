@@ -1,10 +1,11 @@
-package models.persistence
+package models.persistence.tables
 
 import java.sql.Timestamp
 import java.util.UUID
 
-import slick.driver.H2Driver.api._
+import models.persistence.AuthToken
 import org.joda.time.DateTime
+import slick.driver.H2Driver.api._
 
 /**
  * Created by cdiniz on 30/09/16.

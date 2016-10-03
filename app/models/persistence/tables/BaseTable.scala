@@ -1,4 +1,4 @@
-package models.persistence
+package models.persistence.tables
 
 import java.sql.Timestamp
 

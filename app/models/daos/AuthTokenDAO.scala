@@ -8,7 +8,7 @@ import org.joda.time.DateTime
 import scala.concurrent.{ ExecutionContext, Future }
 
 /**
- * Give access to the [[models.persistence.AuthToken]] object.
+ * Give access to the [[AuthToken]] object.
  */
 trait AuthTokenDAO {
 
