@@ -3,7 +3,8 @@ package models.daos
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import models.persistence.{ User, UsersTable }
+import models.persistence.User
+import models.persistence.tables.UsersTable
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.{ ExecutionContext, Future }

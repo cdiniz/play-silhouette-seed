@@ -4,7 +4,8 @@ import javax.inject.Inject
 import java.sql.Timestamp
 import java.util.UUID
 
-import models.persistence.{ AuthToken, AuthTokensTable, User, UsersTable }
+import models.persistence.tables.AuthTokensTable
+import models.persistence.AuthToken
 import org.joda.time.DateTime
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -31,7 +32,7 @@ class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: Datab
    *
    * @param dateTime The current date time.
    */
-  override def findExpired(dateTime: DateTime)(implicit ec: ExecutionContext): Future[Seq[AuthToken]] = findByFilter(token => token.expiry < new Timestamp(dateTime.getMillis))
+  override def findExpired(dateTime: DateTime)(implicit ec: ExecutionContext): Future[Seq[AuthToken]] = findByFilter(token => true)
 
   /**
    * Removes the token for the given ID.

@@ -1,8 +1,8 @@
-package models.persistence
-import slick.driver.H2Driver.api._
-import java.util.UUID
+package models.persistence.tables
 
 import com.mohiva.play.silhouette.api.LoginInfo
+import models.persistence.User
+import slick.driver.H2Driver.api._
 
 /**
  * Created by cdiniz on 30/09/16.

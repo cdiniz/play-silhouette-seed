@@ -12,7 +12,7 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import java.sql.Timestamp
 
-import models.persistence.BaseTable
+import models.persistence.tables.BaseTable
 
 trait AbstractBaseDAO[T, A] {
   def insert(row: A): Future[Long]
