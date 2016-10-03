@@ -9,9 +9,6 @@ import play.api.mvc.PathBindable
  */
 object Binders {
 
-  /**
-   * A [[java.util.UUID]] bindable.
-   */
   implicit object UUIDPathBindable extends PathBindable[UUID] {
     def bind(key: String, value: String) = try {
       Right(UUID.fromString(value))
