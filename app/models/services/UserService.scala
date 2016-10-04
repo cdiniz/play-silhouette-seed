@@ -6,7 +6,8 @@ import com.mohiva.play.silhouette.api.services.IdentityService
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import models.persistence.User
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 /**
  * Handles actions to users.
