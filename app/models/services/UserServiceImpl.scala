@@ -8,7 +8,7 @@ import com.mohiva.play.silhouette.api.util.Clock
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import models.daos.UserDAO
 import models.persistence.User
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 /**
@@ -58,7 +58,8 @@ class UserServiceImpl @Inject() (userDAO: UserDAO, clock: Clock) extends UserSer
           lastName = profile.lastName,
           fullName = profile.fullName,
           email = profile.email,
-          avatarURL = profile.avatarURL
+          avatarURL = profile.avatarURL,
+          editedAt = new Timestamp(clock.now.getMillis)
         ))
       case None => // Insert a new user
         val now = new Timestamp(clock.now.getMillis)

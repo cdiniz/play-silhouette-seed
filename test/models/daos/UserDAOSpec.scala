@@ -19,8 +19,9 @@ import scala.concurrent.duration._
  */
 class UserDAOSpec extends PlaySpecification with Mockito {
   sequential
-  "user dao" should {
-    "save and read a user" in new Context {
+  "UserDAO" should {
+
+    "save and find a user by Id" in new Context {
       new WithApplication(application) {
         val userDao = application.injector.instanceOf(classOf[UserDAO])
         private val now: Timestamp = new Timestamp(System.currentTimeMillis())
@@ -31,6 +32,38 @@ class UserDAOSpec extends PlaySpecification with Mockito {
 
         u.get.id shouldEqual 1
         u.get.firstName shouldEqual Some("name")
+      }
+    }
+
+    "save and find a user by LoginInfo" in new Context {
+      new WithApplication(application) {
+        val userDao = application.injector.instanceOf(classOf[UserDAO])
+        private val now: Timestamp = new Timestamp(System.currentTimeMillis())
+        private val loginInfo: LoginInfo = LoginInfo("key1", "v1")
+        Await.result(
+          userDao.save(User(0, loginInfo, Some("name"), None, None, None, None, true, true, now, now)), 1 minute)
+        val u: Option[User] = Await.result(
+          userDao.find(loginInfo), 1 minute)
+
+        u.get.id shouldEqual 1
+        u.get.firstName shouldEqual Some("name")
+      }
+    }
+
+    "update existing user" in new Context {
+      new WithApplication(application) {
+        val userDao = application.injector.instanceOf(classOf[UserDAO])
+        private val now: Timestamp = new Timestamp(System.currentTimeMillis())
+        Await.result(
+          userDao.save(User(0, LoginInfo("", ""), Some("name"), None, None, None, None, true, true, now, now)), 1 minute)
+        Await.result(
+          userDao.save(User(1, LoginInfo("key", "value"), Some("name1"), None, None, None, None, true, true, now, now)), 1 minute)
+        val u: Option[User] = Await.result(
+          userDao.find(1), 1 minute)
+
+        u.get.id shouldEqual 1
+        u.get.firstName shouldEqual Some("name1")
+        u.get.loginInfo shouldEqual LoginInfo("key", "value")
       }
     }
   }

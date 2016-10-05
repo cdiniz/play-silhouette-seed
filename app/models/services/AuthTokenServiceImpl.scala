@@ -29,9 +29,9 @@ class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock) 
    * @param expiry The duration a token expires.
    * @return The saved auth token.
    */
-  def create(userId: Long, expiry: FiniteDuration = 5 minutes) = {
-    val now = new Timestamp(clock.now.getMillis)
-    val token = AuthToken(0, UUID.randomUUID(), userId, clock.now.plusSeconds(expiry.toSeconds.toInt), now, now)
+  def create(userId: Long, tokenId: UUID = UUID.randomUUID(), expiry: FiniteDuration = 5 minutes) = {
+    val now = clock.now
+    val token = AuthToken(0, tokenId, userId, now.plusSeconds(expiry.toSeconds.toInt), new Timestamp(now.getMillis), new Timestamp(now.getMillis))
     authTokenDAO.save(token)
   }
 
@@ -48,9 +48,10 @@ class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock) 
    *
    * @return The list of deleted tokens.
    */
-  def clean = authTokenDAO.findExpired(clock.now).flatMap { tokens =>
+  def clean: Future[Seq[AuthToken]] = authTokenDAO.findExpired(clock.now).flatMap { tokens =>
     Future.sequence(tokens.map { token =>
-      authTokenDAO.remove(token.token).map(_ => token)
+      authTokenDAO.remove(token.token)
+        .map(_ => token)
     })
   }
 }

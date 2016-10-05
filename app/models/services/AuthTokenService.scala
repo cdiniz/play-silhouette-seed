@@ -20,7 +20,7 @@ trait AuthTokenService {
    * @param expiry The duration a token expires.
    * @return The saved auth token.
    */
-  def create(userID: Long, expiry: FiniteDuration = 5 minutes): Future[AuthToken]
+  def create(userID: Long, tokenId: UUID = UUID.randomUUID(), expiry: FiniteDuration = 5 minutes): Future[AuthToken]
 
   /**
    * Validates a token ID.

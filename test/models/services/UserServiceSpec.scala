@@ -18,7 +18,7 @@ import scala.concurrent.{ Await, ExecutionContext, Future }
 /**
  * Created by cdiniz on 03/10/16.
  */
-class UserServiceTest(implicit ec: ExecutionContext) extends PlaySpecification with Mockito {
+class UserServiceSpec(implicit ec: ExecutionContext) extends PlaySpecification with Mockito {
 
   val sampleUser = User(1, LoginInfo("", ""), None, None, None, None, None, true, true, new Timestamp(Clock().now.getMillis), new Timestamp(Clock().now.getMillis))
 
@@ -66,14 +66,16 @@ class UserServiceTest(implicit ec: ExecutionContext) extends PlaySpecification w
       val daoMock = mock[UserDAO]
       val clock = mock[Clock]
       val service = new UserServiceImpl(daoMock, clock)
+      val sampleDateTime = DateTime.now()
+
       val returnUser = Future.successful { Some(sampleUser) }
       val loginInfo = LoginInfo("id", "key")
       val commonsProfile = CommonSocialProfile(loginInfo, Some("first"), Some("last"), Some("full"), Some("email"), Some("avatar"))
-      val userWithProfileInfo = sampleUser.copy(firstName = Some("first"), lastName = Some("last"), fullName = Some("full"), email = Some("email"), avatarURL = Some("avatar"))
+      val userWithProfileInfo = sampleUser.copy(firstName = Some("first"), lastName = Some("last"), fullName = Some("full"), email = Some("email"), avatarURL = Some("avatar"), editedAt = new Timestamp(sampleDateTime.getMillis))
       val returnUserWithProfileInfo = Future { userWithProfileInfo }
       daoMock.find(loginInfo) returns returnUser
       daoMock.save(userWithProfileInfo) returns returnUserWithProfileInfo
-
+      clock.now returns sampleDateTime
       Await.result(service.save(commonsProfile), 1 minute) shouldEqual userWithProfileInfo
 
       there was one(daoMock).find(loginInfo)

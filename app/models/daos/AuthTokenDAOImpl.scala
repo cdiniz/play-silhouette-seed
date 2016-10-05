@@ -9,7 +9,8 @@ import models.persistence.AuthToken
 import org.joda.time.DateTime
 import play.api.db.slick.DatabaseConfigProvider
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 /**
  * Created by cdiniz on 01/10/16.
@@ -25,14 +26,14 @@ class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: Datab
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  override def find(id: UUID)(implicit ec: ExecutionContext): Future[Option[AuthToken]] = findByFilter(_.token === id).map(_.headOption)
+  override def find(id: UUID): Future[Option[AuthToken]] = findByFilter(_.token === id).map(_.headOption)
 
   /**
    * Finds expired tokens.
    *
    * @param dateTime The current date time.
    */
-  override def findExpired(dateTime: DateTime)(implicit ec: ExecutionContext): Future[Seq[AuthToken]] = findByFilter(token => true)
+  override def findExpired(dateTime: DateTime): Future[Seq[AuthToken]] = findByFilter(token => token.expiry < new Timestamp(dateTime.getMillis))
 
   /**
    * Removes the token for the given ID.
@@ -40,7 +41,7 @@ class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: Datab
    * @param id The ID for which the token should be removed.
    * @return A future to wait for the process to be completed.
    */
-  override def remove(id: UUID)(implicit ec: ExecutionContext): Future[Unit] = deleteByFilter(_.token === id).map(i => {})
+  override def remove(id: UUID): Future[Unit] = deleteByFilter(_.token === id).map(i => {})
 
   /**
    * Saves a token.
@@ -48,6 +49,6 @@ class AuthTokenDAOImpl @Inject() (override protected val dbConfigProvider: Datab
    * @param token The token to save.
    * @return The saved token.
    */
-  override def save(token: AuthToken)(implicit ec: ExecutionContext): Future[AuthToken] = insert(token).map(id => token.copy(id = id))
+  override def save(token: AuthToken): Future[AuthToken] = insert(token).map(id => token.copy(id = id))
 
 }
